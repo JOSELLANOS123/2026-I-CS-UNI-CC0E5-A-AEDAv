@@ -14,4 +14,6 @@ public:
     virtual int  size();
 };
 
+void DemoVector();
+
 #endif // __VECTOR_H__

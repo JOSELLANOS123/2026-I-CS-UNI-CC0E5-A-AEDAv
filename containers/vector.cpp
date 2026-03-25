@@ -1,4 +1,6 @@
+#include <iostream>
 #include "vector.h"
+using namespace std;
 
 Vector::Vector(int capacity){
     m_capacity = capacity;
