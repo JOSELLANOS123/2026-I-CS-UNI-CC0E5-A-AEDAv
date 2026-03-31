@@ -1,1 +1,35 @@
+name: Sync Fork
 
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  
+
+      - name: Add upstream
+        run: |
+          git remote add upstream https://github.com/ecuadros/2026-I-CS-UNI-CC0E5-A-AEDAv.git
+          git fetch upstream
+      - name: Sync all branches
+        run: |
+          for branch in $(git branch -r | grep upstream/ | grep -v '\->'); do
+            branch_name=$(echo $branch | sed 's|upstream/||')
+      
+            # saltar main
+            if [ "$branch_name" = "main" ]; then
+              echo "Skipping main branch"
+              continue
+            fi
+      
+            git checkout -B $branch_name $branch
+            git push origin $branch_name --force
+          done
