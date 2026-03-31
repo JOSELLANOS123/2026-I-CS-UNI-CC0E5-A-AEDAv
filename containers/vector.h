@@ -62,6 +62,12 @@ string Vector<T>::toString(){
     return oss.str();
 }
 
+template <typename T>
+ostream& operator<<(ostream& os, Vector<T>& v){
+    os << v.toString();
+    return os;
+}
+
 void DemoVector();
 
 #endif // __VECTOR_H__

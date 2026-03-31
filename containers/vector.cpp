@@ -11,7 +11,7 @@ void DemoVector(){
     v1.push_back(2);
     v1.push_back(-1);
     v1.push_back(4);
-    cout << v1.toString() << endl;
+    cout << v1 << endl;
     // cout << "hola" << 5 << endl;
     // cout.operator<<("hola")
     // ==============
@@ -27,7 +27,7 @@ void DemoVector(){
     v2.push_back("Hola");
     v2.push_back("Mundo");
     v2.push_back("!");
-    cout << v2.toString() << endl;
+    cout << v2 << endl;
     // for(size_t i = 0; i < v2.size(); ++i){
     //     std::cout << v2.get(i) << " ";
     // }
