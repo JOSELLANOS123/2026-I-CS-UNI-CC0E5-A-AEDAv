@@ -1,8 +1,12 @@
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
 
+#include <iostream>
 #include <cstddef> // size_t
+#include <string>
+#include <sstream>
 #include "../types.h"
+using namespace std;
 
 template <typename T>
 class Vector{
@@ -17,6 +21,7 @@ public:
     virtual void push_back(T value);
     virtual T  get(size_t index);
     virtual size_t  size();
+    virtual string toString();
 };
 
 template <typename T>
@@ -41,12 +46,20 @@ template <typename T>
 T Vector<T>::get(size_t index){
     if(index >= 0 && index < m_size)
         return m_data[index];
-    return -1;
+    throw std::out_of_range("Index out of range");
 }
 
 template <typename T>
 size_t Vector<T>::size(){
     return m_size;
+}
+
+template <typename T>
+string Vector<T>::toString(){
+    ostringstream oss;
+    for(size_t i = 0; i < m_size; ++i)
+        oss << m_data[i] << " ";
+    return oss.str();
 }
 
 void DemoVector();
