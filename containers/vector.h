@@ -60,7 +60,6 @@ public:
 
     iterator begin() { return iterator(this, 0); }
     iterator end()   { return iterator(this, m_size); }
-
 };
 
 template <typename T>

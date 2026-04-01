@@ -15,6 +15,11 @@ void Add(T& n, T value){
     n += value;
 }
 
+template <typename T>
+void PrintX(T &n, ostream &os, string sep){
+    os << n << sep;
+}
+
 void DemoVector(){
     Vector<T1> v1(3);
     v1.push_back(1);
@@ -45,6 +50,11 @@ void DemoVector(){
     ForEach(v1, AddOne);
     Print(v1, cout);
     ForEach(v1, Add<T1>, 10);
+    cout << "Imprimiendo con Print enviandole el cout" << endl;
+    ForEach(v1, PrintX<T1>, cout, ",");
+    cout << endl;
+    ForEach(v1, PrintX<T1>, cout, " ");
+    cout << endl;
     Print(v1, cout);
 
     Print(v2, cout);
