@@ -5,6 +5,7 @@
 #include <cstddef> // size_t
 #include <string>
 #include <sstream>
+#include "util.h"
 #include "../types.h"
 using namespace std;
 

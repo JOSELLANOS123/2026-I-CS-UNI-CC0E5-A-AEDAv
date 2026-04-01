@@ -32,5 +32,10 @@ void DemoVector(){
     of << v1 << endl;
     of << v2 << endl;
     // of.close();
-    
+
+    Print(v1, cout);
+    Print(v2, cout);
+
+    Print(v1, of);
+    Print(v2, of);
 }
