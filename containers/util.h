@@ -12,3 +12,9 @@ void ForEach(Container& c, Func func){
     for(auto it = c.begin(); it != c.end(); ++it)
         func(*it);
 }
+
+template <typename Container, typename Func, typename... Args>
+void ForEach(Container& c, Func func, Args... args){
+    for(auto it = c.begin(); it != c.end(); ++it)
+        func(*it, args...);
+}

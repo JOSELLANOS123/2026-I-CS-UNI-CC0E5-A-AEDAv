@@ -10,6 +10,10 @@ void AddOne(int& n){
     n+= 2;
 }
 
+void Add(int& n, int value){
+    n+= value;
+}
+
 void DemoVector(){
     Vector<T1> v1(3);
     v1.push_back(1);
@@ -38,8 +42,10 @@ void DemoVector(){
     // of.close();
 
     ForEach(v1, AddOne);
-    
     Print(v1, cout);
+    ForEach(v1, Add, 10);
+    Print(v1, cout);
+    
     Print(v2, cout);
 
     Print(v1, of);
