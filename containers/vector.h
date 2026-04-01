@@ -16,8 +16,9 @@ private:
     size_t  m_capacity;
     size_t  m_size;
     T * m_data;
+    void resize();
 public:
-    Vector(size_t capacity);
+    Vector(size_t capacity = 10);
     virtual ~Vector();
     virtual void push_back(T value);
     virtual T  get(size_t index);
@@ -38,9 +39,20 @@ Vector<T>::~Vector(){
 }
 
 template <typename T>
+void Vector<T>::resize(){
+    m_capacity = (m_capacity == 0) ? 10 : m_capacity * 2;
+    T * new_data = new T[m_capacity];
+    for(size_t i = 0; i < m_size; ++i)
+        new_data[i] = m_data[i];
+    delete[] m_data;
+    m_data = new_data;
+}
+
+template <typename T>
 void Vector<T>::push_back(T value){
-    if(m_size < m_capacity)
-        m_data[m_size++] = value;
+    if(m_size == m_capacity) // Overflow
+        resize();
+    m_data[m_size++] = value;
 }
 
 template <typename T>
