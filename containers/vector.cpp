@@ -31,6 +31,15 @@ void DemoVector(){
     ofstream of("temp.txt");
     of << v1 << endl;
     of << v2 << endl;
-    // of.close();
+    of.close();
     
+    ifstream in("temp.txt");
+    Vector<T1> v3(10);
+    in >> v3;
+    ofstream of2("result1.txt");
+    of2 << v3 << endl;
+
+    Vector<string> v4(10);
+    in >> v4;
+    of2 << v4 << endl;
 }
