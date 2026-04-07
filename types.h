@@ -12,4 +12,6 @@ using Type = int;
 
 using T1 = int;
 
+using Ref = long;
+
 #endif // __TYPES_H__

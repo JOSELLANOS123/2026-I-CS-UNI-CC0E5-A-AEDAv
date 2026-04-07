@@ -21,6 +21,6 @@ void ForEach(Iterator begin, Iterator end, Func func, Args&&... args){
 
 template <typename Container, typename Func, typename... Args>
 void ForEach(Container& container, Func func, Args&&... args){
-    ForEach(container.begin(), container.end(), 
+    ForEach(container.begin(), container.end(),
             func, forward<Args>(args)...);
 }

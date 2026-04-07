@@ -14,6 +14,7 @@ template <typename Container>
 class vector_forward_iterator{
 public:
     typedef typename Container::value_type    value_type;
+    typedef typename Container::Node          Node;
     typedef vector_forward_iterator<Container> myself;
 protected:
     Container *m_pContainer;
@@ -35,31 +36,70 @@ public:
 
     bool operator==(myself iter)   { return !(*this != iter); }
     bool operator!=(myself iter)   { return m_pContainer != iter.m_pContainer || m_pos != iter.m_pos; }
-    value_type &operator*()              { return m_pContainer->m_data[m_pos];   }
-    myself operator++()                  { m_pos++; return *this; }
+    value_type &operator*()        { return m_pContainer->m_data[m_pos].getDataRef();   }
+    myself operator++()            { m_pos++; return *this; }
 };
+
+template <typename T>
+class VectorNode{
+    T   m_data;
+    Ref m_ref;
+public:
+    VectorNode() : m_data(T()), m_ref(Ref()) {}
+    VectorNode(T data, Ref ref) : m_data(data), m_ref(ref) {}
+    VectorNode(const VectorNode &other) : m_data(other.m_data), m_ref(other.m_ref) {}
+    VectorNode(VectorNode &&other) : m_data(move(other.m_data)), m_ref(move(other.m_ref)) {}
+    VectorNode& operator=(const VectorNode &other) {
+        m_data = other.m_data;
+        m_ref = other.m_ref;
+        return *this;
+    }
+    VectorNode& operator=(VectorNode &&other) {
+        m_data = move(other.m_data);
+        m_ref = move(other.m_ref);
+        return *this;
+    }
+
+    T    getData() const { return m_data; }
+    T&   getDataRef() { return m_data; }
+    void setData(T data) { m_data = data; }
+    Ref  getRef() { return m_ref; }
+    void setRef(Ref ref) { m_ref = ref; }
+    
+    string toString(){
+        ostringstream oss;
+        oss << "(" << m_data << ", " << m_ref << ")";
+        return oss.str();
+    }
+};
+
+template <typename T>
+ostream& operator<<(ostream& os, VectorNode<T>& node){
+    return os << node.toString();
+}
 
 template <typename T>
 class Vector{
 public:
     using value_type = T;
-    using iterator = vector_forward_iterator< Vector<T> > ;
-    friend iterator;
+    using forward_iterator   = vector_forward_iterator< Vector<T> > ;
+    using Node               = VectorNode<T>;
+    friend forward_iterator;
 private:
     size_t  m_capacity;
     size_t  m_size;
-    T      *m_data;
+    Node   *m_data;
     void resize();
 public:
     Vector(size_t capacity = 10);
     virtual ~Vector();
-    virtual void push_back(value_type value);
+    virtual void push_back(value_type value, Ref ref);
     virtual value_type  get(size_t index);
     virtual size_t  size();
     virtual string toString();
 
-    iterator begin() { return iterator(this, 0); }
-    iterator end()   { return iterator(this, m_size); }
+    forward_iterator begin() { return forward_iterator(this, 0); }
+    forward_iterator end()   { return forward_iterator(this, m_size); }
 
     template <typename Func, typename... Args>
     void ForEach(Func func, Args &&...  args){
@@ -71,36 +111,36 @@ template <typename T>
 Vector<T>::Vector(size_t capacity){
     m_capacity = capacity;
     m_size = 0;
-    m_data = new T[capacity];
+    m_data = new Node[capacity];
 }
 
 template <typename T>
 Vector<T>::~Vector(){
-    delete[] m_data;
+    delete [] m_data;
 }
 
 template <typename T>
 void Vector<T>::resize(){
     m_capacity = (m_capacity < 10) ? m_capacity+10 : m_capacity * 2;
-    T * new_data = new T[m_capacity];
+    Node * new_data = new Node[m_capacity];
     for(size_t i = 0; i < m_size; ++i)
         new_data[i] = m_data[i];
-    delete[] m_data;
+    delete [] m_data;
     m_data = new_data;
 }
 
 template <typename T>
-void Vector<T>::push_back(value_type value){
+void Vector<T>::push_back(value_type value, Ref ref){
     if(m_size == m_capacity) // Overflow
         resize();
-    m_data[m_size++] = value;
+    m_data[m_size++] = Node(value, ref);
 }
 
 template <typename T>
 typename Vector<T>::value_type
 Vector<T>::get(size_t index){
     if(index >= 0 && index < m_size)
-        return m_data[index];
+        return m_data[index].getData();
     throw std::out_of_range("Index out of range");
 }
 
