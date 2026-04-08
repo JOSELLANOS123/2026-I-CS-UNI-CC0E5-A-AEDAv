@@ -13,33 +13,15 @@ using namespace std;
 template <typename Container>
 class vector_forward_iterator : public general_iterator<Container, vector_forward_iterator<Container>> {
 public:
-    using myself = vector_forward_iterator<Container>;
-    using Parent = general_iterator<Container, vector_forward_iterator<Container>>;
-public:
-    vector_forward_iterator(Container *pContainer, typename Parent::Node *pNode)
-        : Parent(pContainer, pNode) {}
-    vector_forward_iterator(myself &other) 
-          : Parent(other) {}
-    vector_forward_iterator(myself &&other) // Move constructor
-          : Parent(move(other)) {}
-
-    myself operator++()            { Parent::m_pNode++; return *this; }
+    using general_iterator<Container, vector_forward_iterator<Container>>::general_iterator;
+    vector_forward_iterator operator++() { this->m_pNode++; return *this; }
 };
 
 template <typename Container>
 class vector_backward_iterator : public general_iterator<Container, vector_backward_iterator<Container>> {
 public:
-    using myself = vector_backward_iterator<Container>;
-    using Parent = general_iterator<Container, vector_backward_iterator<Container>>;
-public:
-    vector_backward_iterator(Container *pContainer, typename Parent::Node *pNode)
-        : Parent(pContainer, pNode) {}
-    vector_backward_iterator(myself &other) 
-          : Parent(other) {}
-    vector_backward_iterator(myself &&other) // Move constructor
-          : Parent(move(other)) {}
-
-    myself operator++()            { Parent::m_pNode--; return *this; }
+    using general_iterator<Container, vector_backward_iterator<Container>>::general_iterator;
+    vector_backward_iterator operator++() { this->m_pNode--; return *this; }
 };
 
 template <typename T>
