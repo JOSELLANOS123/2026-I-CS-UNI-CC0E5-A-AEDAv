@@ -5,6 +5,7 @@
 #include <cstddef> // size_t
 #include <string>
 #include <sstream>
+#include <mutex>   // mutex
 #include "general_iterator.h"
 #include "util.h"
 #include "../types.h"
@@ -50,16 +51,11 @@ public:
     Ref  getRef() { return m_ref; }
     void setRef(Ref ref) { m_ref = ref; }
     
-    string toString(){
-        ostringstream oss;
-        oss << "(" << m_data << ", " << m_ref << ")";
-        return oss.str();
-    }
 };
 
 template <typename T>
 ostream& operator<<(ostream& os, VectorNode<T>& node){
-    return os << node.toString();
+    return os << "(" << node.getData() << ", " << node.getRef() << ")";
 }
 
 template <typename T>
@@ -75,13 +71,14 @@ private:
     size_t  m_capacity;
     size_t  m_size;
     Node   *m_data;
+    mutex   m_mtx;
     void    resize();
 public:
     Vector(size_t capacity = 10);
     virtual ~Vector();
     virtual void push_back(value_type value, Ref ref);
     virtual value_type  get(size_t index);
-    virtual size_t  size();
+    virtual size_t size();
     virtual string toString();
 
     forward_iterator begin() { return forward_iterator(this, m_data); }
@@ -125,6 +122,7 @@ void Vector<T>::resize(){
 
 template <typename T>
 void Vector<T>::push_back(value_type value, Ref ref){
+    scoped_lock lock(m_mtx);
     if(m_size == m_capacity) // Overflow
         resize();
     m_data[m_size++] = Node(value, ref);
@@ -173,5 +171,6 @@ istream& operator>>(istream& is, Vector<T>& v){
 // }
 
 void DemoVector();
+void DemoConcurrentVector();
 
 #endif // __VECTOR_H__

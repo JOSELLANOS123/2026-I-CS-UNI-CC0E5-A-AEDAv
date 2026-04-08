@@ -3,6 +3,7 @@
 
 // g++ -std=c++2b main.cpp containers/vector.cpp -o main
 int main(){
-    DemoVector();
+    // DemoVector();
+    DemoConcurrentVector();
     return 0;
 }
