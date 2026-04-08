@@ -50,7 +50,7 @@ void DemoVector(){
     Print(v1, cout);
 
     Print(v2, cout);
-    ForEach(v2, Add<string>, "XYZ");
+    ForEach(v2, Add<string>, string("XYZ"));
     cout << v2 << endl;
 
     Print(v1, of);

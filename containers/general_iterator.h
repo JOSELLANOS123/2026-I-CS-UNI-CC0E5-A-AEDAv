@@ -6,10 +6,10 @@
 template <typename Container, class IteratorBase> // 
 class general_iterator
 {public:
-    typedef typename Container::Node    Node;
-    typedef typename Node::Type         Type;
-    //typedef class general_iterator<Container> Parent;
-    typedef general_iterator<Container, IteratorBase> myself; // 
+    using Node = typename Container::Node;
+    // using value_type =  typename Node::value_type;
+    //using Parent = class general_iterator<Container>;
+    using myself = general_iterator<Container, IteratorBase>;
     
 protected:
     Container *m_pContainer;
@@ -29,9 +29,11 @@ public:
               return *(IteratorBase *)this; // Pending static_cast?
           }
 
-    bool operator==(IteratorBase iter)   { return m_pNode == iter.m_pNode; }
-    bool operator!=(IteratorBase iter)   { return !(*this == iter);        }
-    Type &operator*()                    { return m_pNode->getDataRef();   }
+    bool operator==(const IteratorBase &iter)   { return m_pNode == iter.m_pNode; }
+    bool operator!=(const IteratorBase &iter)   { return m_pNode != iter.m_pNode; }
+    typename Container::value_type &operator*(){
+        return m_pNode->getDataRef();
+    }
 };
 
 #endif

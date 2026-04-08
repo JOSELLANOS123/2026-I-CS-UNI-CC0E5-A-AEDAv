@@ -5,39 +5,25 @@
 #include <cstddef> // size_t
 #include <string>
 #include <sstream>
-// #include "../GeneralIterator.h"
+#include "general_iterator.h"
 #include "util.h"
 #include "../types.h"
 using namespace std;
 
 template <typename Container>
-class vector_forward_iterator{
+class vector_forward_iterator : public general_iterator<Container, vector_forward_iterator<Container>> {
 public:
-    typedef typename Container::value_type    value_type;
-    typedef typename Container::Node          Node;
-    typedef vector_forward_iterator<Container> myself;
-protected:
-    Container *m_pContainer;
-    size_t     m_pos;
+    using myself = vector_forward_iterator<Container>;
+    using Parent = general_iterator<Container, vector_forward_iterator<Container>>;
 public:
-    vector_forward_iterator(Container *pContainer, size_t pos)
-        : m_pContainer(pContainer), m_pos(pos) {}
+    vector_forward_iterator(Container *pContainer, typename Parent::Node *pNode)
+        : Parent(pContainer, pNode) {}
     vector_forward_iterator(myself &other) 
-          : m_pContainer(other.m_pContainer), m_pos(other.m_pos){}
+          : Parent(other) {}
     vector_forward_iterator(myself &&other) // Move constructor
-          {   m_pContainer = move(other.m_pContainer);
-              m_pos        = move(other.m_pos);
-          }
-    myself operator=(myself &iter)
-          {   m_pContainer = move(iter.m_pContainer);
-              m_pos        = move(iter.m_pos);
-              return *(myself *)this; // Pending static_cast?
-          }
+          : Parent(move(other)) {}
 
-    bool operator==(myself iter)   { return !(*this != iter); }
-    bool operator!=(myself iter)   { return m_pContainer != iter.m_pContainer || m_pos != iter.m_pos; }
-    value_type &operator*()        { return m_pContainer->m_data[m_pos].getDataRef();   }
-    myself operator++()            { m_pos++; return *this; }
+    myself operator++()            { Parent::m_pNode++; return *this; }
 };
 
 template <typename T>
@@ -98,8 +84,8 @@ public:
     virtual size_t  size();
     virtual string toString();
 
-    forward_iterator begin() { return forward_iterator(this, 0); }
-    forward_iterator end()   { return forward_iterator(this, m_size); }
+    forward_iterator begin() { return forward_iterator(this, m_data); }
+    forward_iterator end()   { return forward_iterator(this, m_data + m_size); }
 
     template <typename Func, typename... Args>
     void ForEach(Func func, Args &&...  args){
