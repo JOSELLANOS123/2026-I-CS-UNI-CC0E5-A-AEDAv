@@ -8,8 +8,6 @@
 using namespace std;
 
 void AddOne(int& n){
-    static mutex mtx1;
-    lock_guard<mutex> lock(mtx1);
     ++n;
 }
 

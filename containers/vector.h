@@ -87,11 +87,13 @@ public:
     backward_iterator rbegin() { return backward_iterator(this, m_data + m_size - 1); }
     backward_iterator rend()   { return backward_iterator(this, m_data - 1); }
     
+    // TODO: Agregar control concurrente
     template <typename Func, typename... Args>
     void ForEach(Func func, Args &&...  args){
         ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
     }
 
+    // TODO: Agregar control concurrente
     template <typename Func, typename... Args>
     void ReverseForEach(Func func, Args &&...  args){
         ::ForEach(rbegin(), rend(), func, std::forward<Args>(args)... );
