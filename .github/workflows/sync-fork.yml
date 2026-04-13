@@ -1,8 +1,6 @@
-name: Sync Fork
+name: Sync All Except Some Branches
 
 on:
-  schedule:
-    - cron: "0 12 * * *"
   workflow_dispatch:
 
 jobs:
@@ -19,17 +17,32 @@ jobs:
         run: |
           git remote add upstream https://github.com/ecuadros/2026-I-CS-UNI-CC0E5-A-AEDAv.git
           git fetch upstream
-      - name: Sync all branches
+
+      - name: Sync branches except excluded
         run: |
+          # ramas a excluir
+          exclude=("main" "07-ofstream" "16-IterSimplified")
+
           for branch in $(git branch -r | grep upstream/ | grep -v '\->'); do
             branch_name=$(echo $branch | sed 's|upstream/||')
-      
-            # saltar main
-            if [ "$branch_name" = "main" ]; then
-              echo "Skipping main branch"
+
+            # verificar si está en la lista de exclusión
+            skip=false
+            for ex in "${exclude[@]}"; do
+              if [ "$branch_name" = "$ex" ]; then
+                echo "Skipping $branch_name"
+                skip=true
+                break
+              fi
+            done
+
+            if [ "$skip" = true ]; then
               continue
             fi
-      
-            git checkout -B $branch_name $branch
-            git push origin $branch_name --force
+
+            echo "Syncing $branch_name"
+
+            git fetch upstream $branch_name
+            git checkout -B $branch_name upstream/$branch_name
+            git push origin $branch_name
           done
