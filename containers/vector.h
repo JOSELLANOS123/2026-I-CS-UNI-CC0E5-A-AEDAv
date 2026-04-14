@@ -72,6 +72,7 @@ private:
     size_t  m_size;
     Node   *m_data;
     mutex   m_mtx;
+    //recursive_mutex   m_mtx; -- permite bloqueos anidados del mismo thread
     void    resize();
 public:
     Vector(size_t capacity = 10);
@@ -90,12 +91,15 @@ public:
     // TODO: Agregar control concurrente
     template <typename Func, typename... Args>
     void ForEach(Func func, Args &&...  args){
+        scoped_lock lock(m_mtx); // bloquea mientras recorre
         ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
     }
 
     // TODO: Agregar control concurrente
     template <typename Func, typename... Args>
     void ReverseForEach(Func func, Args &&...  args){
+        scoped_lock lock(m_mtx); // bloquea mientras recorre al reves
+        if(m_size == 0) return;  // evita acceso invalido en rbegin()
         ::ForEach(rbegin(), rend(), func, std::forward<Args>(args)... );
     }
 };
@@ -145,6 +149,7 @@ size_t Vector<T>::size(){
 
 template <typename T>
 string Vector<T>::toString(){
+    //scoped_lock lock(m_mtx); // protege la lectura mientras otro thread escribe.
     ostringstream oss;
     oss << "[";
     for(size_t i = 0; i < m_size - 1; ++i)
