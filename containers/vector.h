@@ -100,8 +100,8 @@ public:
     // TODO: Agregar control concurrente
     template <typename Func, typename... Args>
     void ReverseForEach(Func func, Args &&...  args){
-        scoped_lock lock(m_mtx); // protege el recorrido al reves
-        if(m_size == 0) return;
+        if(m_size == 0) return;      // check rapido sin bloquear
+        scoped_lock lock(m_mtx);     // bloquea mientras recorre al reves
         ::ForEach(rbegin(), rend(), func, std::forward<Args>(args)... );
     }
 };
