@@ -93,12 +93,15 @@ public:
     // TODO: Agregar control concurrente
     template <typename Func, typename... Args>
     void ForEach(Func func, Args &&...  args){
+        scoped_lock lock(m_mtx); // protege el recorrido del vector
         ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
     }
 
     // TODO: Agregar control concurrente
     template <typename Func, typename... Args>
     void ReverseForEach(Func func, Args &&...  args){
+        scoped_lock lock(m_mtx); // protege el recorrido al reves
+        if(m_size == 0) return;
         ::ForEach(rbegin(), rend(), func, std::forward<Args>(args)... );
     }
 };
@@ -158,7 +161,7 @@ ostream& operator<<(ostream& os, Vector<T>& v){
 // TODO: Implementar
 template <typename T>
 istream& operator>>(istream& is, Vector<T>& v){
-    return is;
+    return is; 
 }
 
 // template <typename T>
