@@ -138,11 +138,13 @@ void Vector<T>::push_back(value_type value, Ref ref){
 
 template <typename T>
 size_t Vector<T>::size(){
+    //scoped_lock lock(m_mtx); // evita leer m_size mientras push_back lo modifica
     return m_size;
 }
 
 template <typename T>
 string Vector<T>::toString(){
+    //scoped_lock lock(m_mtx); // protege lectura concurrente
     ostringstream oss;
     oss << "[";
     for(size_t i = 0; i < m_size - 1; ++i)
