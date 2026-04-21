@@ -21,7 +21,7 @@ jobs:
       - name: Sync branches except excluded
         run: |
           # ramas a excluir
-          exclude=("main" "07-ofstream" "16-IterSimplified" "17-ConcurrentVector")
+          exclude=("main" "07-ofstream" "16-IterSimplified" "17-ConcurrentVector" "18-LinkedList")
 
           for branch in $(git branch -r | grep upstream/ | grep -v '\->'); do
             branch_name=$(echo $branch | sed 's|upstream/||')
