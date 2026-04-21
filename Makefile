@@ -5,6 +5,7 @@ LDFLAGS = -pthread # Añadido -pthread
 TARGET = main
 SRCS = main.cpp \
        containers/vector.cpp
+	   containers/ListsDemo.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
