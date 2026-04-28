@@ -59,18 +59,10 @@ public:
 
 // Traits de Ordenamiento
 template <typename T>
-struct AscendingLinkedListTrait{
-    using value_type = T;
-    using Node = LLNode<T>;
-    using Comp = less<T>;
-};
+struct AscendingLinkedListTrait : BaseTrait<T, less<T>, LLNode<T>>{};
 
 template <typename T>
-struct DescendingLinkedListTrait{
-    using value_type = T;
-    using Node = LLNode<T>;
-    using Comp = greater<T>;
-};
+struct DescendingLinkedListTrait : BaseTrait<T, greater<T>, LLNode<T>>{};
 
 // Contenedor Principal LinkedList
 template <typename Trait>
@@ -84,7 +76,7 @@ public:
     using forward_iterator = LinkedListForwardIterator<MySelf>;
     friend forward_iterator;
 
-private:
+protected:
     Node *m_pRoot = nullptr;
     Node *m_tail = nullptr;
     size_t m_size = 0;
