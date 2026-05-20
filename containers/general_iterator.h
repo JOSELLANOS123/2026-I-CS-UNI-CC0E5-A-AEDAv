@@ -7,31 +7,36 @@ template <typename Container, class IteratorBase> //
 class general_iterator
 {public:
     using Node = typename Container::Node;
-    using myself = general_iterator<Container, IteratorBase>;
+    using value_type = typename Container::value_type;
     
 protected:
     Container *m_pContainer;
     Node      *m_pNode;
 public:
-    general_iterator(Container *pContainer, Node *pNode)
-        : m_pContainer(pContainer), m_pNode(pNode) {}
-    general_iterator(myself &other) 
-          : m_pContainer(other.m_pContainer), m_pNode(other.m_pNode){}
-    general_iterator(myself &&other) // Move constructor
-          {   m_pContainer = move(other.m_pContainer);
-              m_pNode      = move(other.m_pNode);
-          }
-    IteratorBase operator=(IteratorBase &iter)
-          {   m_pContainer = move(iter.m_pContainer);
-              m_pNode      = move(iter.m_pNode);
-              return *(IteratorBase *)this; // Pending static_cast?
-          }
-    Node *getNode() const { return m_pNode; }
-    friend bool operator==(const IteratorBase &a, const IteratorBase &b) { return a.getNode() == b.getNode(); }
-    typename Container::value_type &operator*(){
-        return m_pNode->getDataRef();
+    general_iterator(Container* c, Node* n) : m_pContainer(c), m_pNode(n) {}
+    general_iterator(const general_iterator& o)               // fix #1
+        : m_pContainer(o.m_pContainer), m_pNode(o.m_pNode) {}
+    general_iterator(general_iterator&& o)
+        : m_pContainer(o.m_pContainer), m_pNode(o.m_pNode) {}
+
+    IteratorBase& operator=(const IteratorBase& o) {
+        m_pContainer = o.m_pContainer;
+        m_pNode      = o.m_pNode;
+        return *static_cast<IteratorBase*>(this);
     }
+    Node*        getNode()  const { return m_pNode; }
+    value_type&  operator*()      { return m_pNode->getDataRef(); }
+
+    friend bool operator==(const IteratorBase& a, const IteratorBase& b) { return a.m_pNode == b.m_pNode; }
+    friend bool operator!=(const IteratorBase& a, const IteratorBase& b) { return a.m_pNode != b.m_pNode; } // fix #2
+    // operator++ lo define cada iterador concreto (patron CRTP del profe)
+
 };
 
 #endif
- 
+
+
+
+
+
+

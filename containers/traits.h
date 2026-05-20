@@ -1,6 +1,7 @@
 #ifndef __TRAITS_H__
 #define __TRAITS_H__
 #include <functional> // para less y greater
+using namespace std;
 
 template <typename _Node, typename _Comp>
 struct BaseTrait{
@@ -17,3 +18,7 @@ struct DescendingTrait : public BaseTrait<_Node, greater<typename _Node::value_t
 };
 
 #endif // __TRAITS_H__
+
+
+
+

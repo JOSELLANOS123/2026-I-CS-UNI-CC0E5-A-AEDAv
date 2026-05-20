@@ -1,111 +1,88 @@
 #include <iostream>
 #include <fstream>
-#include <string>
-
+#include <thread>
 #include "../types.h"
 #include "linkedlist.h"
-// #include "doublelinkedlist.h"
-// #include "circularlinkedlist.h"
-// #include "circularlinkedlist.h"
-
+#include "doublelinkedlist.h"
+#include "circularlinkedlist.h"
+#include "circulardoublelinkedlist.h"
 using namespace std;
 
-template <typename Container>
-void DemoList(Container& list, string fileName){
-    list.insert(28, 15);
-    list.insert(17, 25);
-    list.insert(8, 35);
-    list.insert(4, 45);
-    list.insert(35, 55);
-    cout << list << endl;
-    // Grabar la lista en un archivo
-    ofstream os(fileName);
-    os << list << endl;
-    
-    // Leer la lista desde un archivo
-    ifstream is(fileName);
-    is >> list;
-    cout << list << endl;
+template<typename C>
+void DemoFileIO(C& list, const string& fname) {
+    { ofstream os(fname); os << list; }
+    C tmp; { ifstream is(fname); is >> tmp; }
+    cout << "  escrito: " << list << "\n  leido:   " << tmp << "\n";
 }
 
-void LinkedListDemo(){
-    LinkedList<T1, AscendingLinkedListTrait<T1>> list;
-    DemoList(list, "AscLL.txt");
-    LinkedList<T1, DescendingLinkedListTrait<T1>> list2;
-    DemoList(list2, "DescLL.txt");
+void LinkedListDemo() {
+    cout << "LinkedList \n";
+    LinkedList<AscendingTrait<LLNode<T1>>> list;
+    list.insert(3,30); list.insert(1,10); list.insert(2,20);
+    cout << "  insert asc: " << list << "\n";
+    DemoFileIO(list, "LL.txt");
+    cout << "  iterator: ";
+    for (auto it = list.begin(); it != list.end(); ++it) cout << *it << " ";
+    cout << "\n";
+    // concurrencia
+    LinkedList<AscendingTrait<LLNode<T1>>> lc;
+    auto w = [&lc](int id){ for(int i=0;i<1000;i++) lc.push_front(i,id); };
+    thread t1(w,1),t2(w,2),t3(w,3),t4(w,4),t5(w,5);
+    t1.join();t2.join();t3.join();t4.join();t5.join();
+    cout << "  concurrencia (esperado 5000): " << lc.size() << "\n";
 }
 
-void DoubleLinkedListDemo(){
-    // DoubleLinkedList<T1, AscendingDLLTrait<T1>> list;
-    // DemoList(list, "AscDLL.txt");
-    // DoubleLinkedList<T1, DescendingDLLTrait<T1>> list2;
-    // DemoList(list2, "DescDLL.txt");
+void DoubleLinkedListDemo() {
+    cout << "DoubleLinkedList \n";
+    DoubleLinkedList<AscendingTrait<DLLNode<T1>>> list;
+    list.insert(3,30); list.insert(1,10); list.insert(5,50); list.insert(2,20); list.insert(4,40);
+    cout << "  forward:  " << list << "\n";
+    cout << "  backward: ";
+    for (auto it = list.rbegin(); it != list.rend(); ++it) cout << *it << " ";
+    cout << "\n";
+    DemoFileIO(list, "DLL.txt");
 }
 
-void CircularLinkedListDemo(){
-    
+void CircularLinkedListDemo() {
+    cout << "CircularLinkedList \n";
+    CircularLinkedList<AscendingTrait<LLNode<T1>>> list;
+    list.insert(3,30); list.insert(1,10); list.insert(5,50);
+    list.insert(2,20); list.insert(4,40);
+    cout << "  operator<<: " << list << "\n";
+    cout << "  cbegin/cend: ";
+    for (auto it = list.cbegin(); it != list.cend(); ++it) cout << *it << " ";
+    cout << "\n";
+    CircularLinkedList<AscendingTrait<LLNode<T1>>> c;
+    c.insert(1,10); c.insert(2,20); c.insert(3,30);
+    cout << "  circularForEach x2: ";
+    c.circularForEach(2, [](T1& v){ cout << v << " "; });
+    cout << "\n";
+    DemoFileIO(list, "CLL.txt");
 }
 
-void CircularLinkedListDemo(){
-    
+void CircularDoubleLinkedListDemo() {
+    cout << " CircularDoubleLinkedList \n";
+    CircularDoubleLinkedList<AscendingTrait<DLLNode<T1>>> list;
+    list.insert(3,30); list.insert(1,10); list.insert(5,50);
+    list.insert(2,20); list.insert(4,40);
+    cout << "  operator<<: " << list << "\n";
+    cout << "  cbegin/cend:   ";
+    for (auto it = list.cbegin(); it != list.cend(); ++it) cout << *it << " ";
+    cout << "\n  crbegin/crend: ";
+    for (auto it = list.crbegin(); it != list.crend(); ++it) cout << *it << " ";
+    cout << "\n";
+    CircularDoubleLinkedList<AscendingTrait<DLLNode<T1>>> c;
+    c.insert(1,10); c.insert(2,20); c.insert(3,30);
+    cout << "  circularForEach fwd x2: ";
+    c.circularForEach(2, 1,  [](T1& v){ cout << v << " "; }); cout << "\n";
+    cout << "  circularForEach bwd x2: ";
+    c.circularForEach(2, -1, [](T1& v){ cout << v << " "; }); cout << "\n";
+    DemoFileIO(list, "CDLL.txt");
 }
 
-void ListsDemo(){
+void ListsDemo() {
     LinkedListDemo();
-    CircularLinkedListDemo();
     DoubleLinkedListDemo();
+    CircularLinkedListDemo();
     CircularDoubleLinkedListDemo();
-}
-
-void TestConcurrencia() {
-    cout << "\nTEST DE CONCURRENCIA" << endl;
-    LinkedList<AscendingLinkedListTrait<T1>> list;
-
-    // 5 hilos van a intentar meter 1000 elementos cada uno al mismo tiempo
-    auto worker = [&list](int thread_id) {
-        for(int i = 0; i < 1000; i++) {
-            list.push_front(i, thread_id);
-        }
-    };
-
-    thread t1(worker, 1);
-    thread t2(worker, 2);
-    thread t3(worker, 3);
-    thread t4(worker, 4);
-    thread t5(worker, 5);
-
-    t1.join(); t2.join(); t3.join(); t4.join(); t5.join();
-
-    cout << "Se lanzaron 5 hilos insertando 1000 elementos simultaneamente." << endl;
-    cout << "Tamano de la lista (Esperado 5000): " << list.size() << endl;
-    if(list.size() == 5000) {
-        cout << "ESTADO: EXITO - El shared_mutex previno condiciones de carrera perfectamente." << endl;
-    } else {
-        cout << "ESTADO: FALLO - Hubo corrupcion de memoria." << endl;
-    }
-}
-void TestOperators() {
-    cout << "\nTEST DE OPERADORES" << endl;
-    LinkedList<AscendingLinkedListTrait<T1>> list;
-    
-    // 1. Probamos operator>> (Lectura)
-    cout << "Simulando lectura desde formato: [(10, 100), (20, 200), (30, 300)]" << endl;
-    stringstream simulador_input("[(10, 100), (20, 200), (30, 300)]");
-    simulador_input >> list;
-
-    // 2. Probamos operator<< (Escritura)
-    cout << "Lista luego de la lectura (operator<<): " << list << endl;
-    
-    // 3. Probamos operator[] (Acceso seguro por indice)
-    cout << "Accediendo al indice [0] (operator[]): Dato -> " << list[0] << endl;
-    cout << "Accediendo al indice [2] (operator[]): Dato -> " << list[2] << endl;
-    
-    // Probamos la excepcion del operator[] (Descomentar para probar)
-    // cout << "Probando fuera de rango: " << list[5] << endl; // Lanzara la excepcion
-}
-void ListsDemo(){
-    TestBasicos();
-    TestConcurrencia();
-    TestOperators();
-    cout << "\n=== FIN DE LAS PRUEBAS ===" << endl;
 }
