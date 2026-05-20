@@ -15,7 +15,7 @@
 #include "traits.h"
 using namespace std;
 
-// ─── Iterador ─────────────────────────────────────────────────────────────────
+// Iterador 
 template <typename Container>
 class LinkedListForwardIterator
     : public general_iterator<Container, LinkedListForwardIterator<Container>> {
@@ -29,8 +29,8 @@ public:
     }
 };
 
-// ─── Nodo ─────────────────────────────────────────────────────────────────────
-// Error corregido: antes LLNode<T> usaba NodeType sin declararlo como parámetro
+
+// Sugerencia: antes LLNode<T> usaba NodeType sin declararlo como parámetro
 // y getNext() aparecía como ngetNext() (typo)
 template <typename T, typename Derived = void>
 class LLNode {
@@ -56,9 +56,8 @@ public:
     void   setNext(Node* n) { m_next = n; }
 };
 
-// ─── Traits de linked list ────────────────────────────────────────────────────
 
-// ─── LinkedList ───────────────────────────────────────────────────────────────
+
 template <typename Trait>
 class LinkedList {
 public:
@@ -75,6 +74,17 @@ protected:
     size_t m_size  = 0;
     Comp   m_comp;
     mutable shared_mutex m_mtx;
+
+    // Reutilizable por CLL y CDLL: rompe el circulo y libera toda la memoria
+    // Mejora libre #4: evita duplicar clear() en CLL y CDLL
+    void internal_clear_circular() {
+        unique_lock<shared_mutex> lock(m_mtx);
+        if (!m_pRoot) return;
+        m_tail->setNext(nullptr);
+        Node* cur = m_pRoot;
+        while (cur) { Node* nx = cur->getNext(); delete cur; cur = nx; }
+        m_pRoot = m_tail = nullptr; m_size = 0;
+    }
 
     virtual void internal_insert(Node*& cur, const value_type& v, Ref r) {
         if (!cur || m_comp(v, cur->getDataRef())) {
@@ -190,7 +200,7 @@ public:
         for (size_t i = 0; i < m_size; ++i, ++it) func(*it, forward<Args>(args)...);
     }
 
-    // operator<< y operator>> definidos UNA SOLA VEZ — heredados por DLL, CLL, CDLL
+    // operator<< y operator>> heredados por DLL, CLL, CDLL
     friend ostream& operator<<(ostream& os, const LinkedList& list) {
         shared_lock<shared_mutex> lock(list.m_mtx);
         os << "[";

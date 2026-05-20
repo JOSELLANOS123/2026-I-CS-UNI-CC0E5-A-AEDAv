@@ -114,12 +114,19 @@ protected:
         return n ? 1 + internal_size(n->m_pChild[0]) + internal_size(n->m_pChild[1]) : 0;
     }
 
-    void fill_inorder  (Node* n, vector<Node*>& v) const { if(!n) return; fill_inorder  (n->m_pChild[0],v); v.push_back(n); fill_inorder  (n->m_pChild[1],v); }
-    void fill_preorder (Node* n, vector<Node*>& v) const { if(!n) return; v.push_back(n); fill_preorder (n->m_pChild[0],v); fill_preorder (n->m_pChild[1],v); }
-    void fill_postorder(Node* n, vector<Node*>& v) const { if(!n) return; fill_postorder(n->m_pChild[0],v); fill_postorder(n->m_pChild[1],v); v.push_back(n); }
+    enum class TraversalOrder { INORDER, PREORDER, POSTORDER }; // Mejora libre (adicional) #3: TraversalOrder enum — unifica 3 recorridos en 1 metodo (DRY)
 
-    TraversalView<Node,value_type> make_view(void (BinaryTree::*fill)(Node*, vector<Node*>&) const) const {
-        vector<Node*> v; (this->*fill)(m_pRoot, v);
+    void fill(Node* n, vector<Node*>& v, TraversalOrder order) const {
+        if (!n) return;
+        if (order == TraversalOrder::PREORDER)  v.push_back(n);
+        fill(n->m_pChild[0], v, order);
+        if (order == TraversalOrder::INORDER)   v.push_back(n);
+        fill(n->m_pChild[1], v, order);
+        if (order == TraversalOrder::POSTORDER) v.push_back(n);
+    }
+
+    TraversalView<Node,value_type> make_view(TraversalOrder order) const {
+        vector<Node*> v; fill(m_pRoot, v, order);
         return TraversalView<Node,value_type>(move(v));
     }
 
@@ -130,8 +137,8 @@ protected:
         print_node(os, n->m_pChild[0], pre + (right ? "|   " : "    "), true);
     }
 
-    string traversalToString(void (BinaryTree::*fill)(Node*, vector<Node*>&) const) const {
-        vector<Node*> v; (this->*fill)(m_pRoot, v);
+    string traversalToString(TraversalOrder order) const {
+        vector<Node*> v; fill(m_pRoot, v, order);
         ostringstream os; os << "["; bool first = true;
         for (auto* node : v) {
             if (!first) os << ",";
@@ -186,9 +193,9 @@ public:
     size_t size() const { shared_lock<shared_mutex> lock(m_mtx); return internal_size(m_pRoot); }
 
     // mejora libre #2: TraversalView unifica forward/backward en 3 metodos
-    View inorder()   const { shared_lock<shared_mutex> lock(m_mtx); return make_view(&BinaryTree::fill_inorder);   }
-    View preorder()  const { shared_lock<shared_mutex> lock(m_mtx); return make_view(&BinaryTree::fill_preorder);  }
-    View postorder() const { shared_lock<shared_mutex> lock(m_mtx); return make_view(&BinaryTree::fill_postorder); }
+    View inorder()   const { shared_lock<shared_mutex> lock(m_mtx); return make_view(TraversalOrder::INORDER);   }
+    View preorder()  const { shared_lock<shared_mutex> lock(m_mtx); return make_view(TraversalOrder::PREORDER);  }
+    View postorder() const { shared_lock<shared_mutex> lock(m_mtx); return make_view(TraversalOrder::POSTORDER); }
 
     // t8 range-based for — delega a inorder
     ForwardIt begin() const { return inorder().begin(); }
@@ -197,15 +204,15 @@ public:
     // t9 toString
     string toString() const {
         shared_lock<shared_mutex> lock(m_mtx);
-        return "Inorder:"    + traversalToString(&BinaryTree::fill_inorder)
-             + "\nPreorder:"  + traversalToString(&BinaryTree::fill_preorder)
-             + "\nPostorder:" + traversalToString(&BinaryTree::fill_postorder);
+        return "Inorder:"    + traversalToString(TraversalOrder::INORDER)
+             + "\nPreorder:"  + traversalToString(TraversalOrder::PREORDER)
+             + "\nPostorder:" + traversalToString(TraversalOrder::POSTORDER);
     }
 
     // t10 operator<< — inorder, funciona con cout y ofstream sin cambios
     friend ostream& operator<<(ostream& os, const BinaryTree& tree) {
         shared_lock<shared_mutex> lock(tree.m_mtx);
-        vector<Node*> v; tree.fill_inorder(tree.m_pRoot, v);
+        vector<Node*> v; tree.fill(tree.m_pRoot, v, TraversalOrder::INORDER);
         os << "[";
         for (size_t i = 0; i < v.size(); ++i) {
             if (i) os << ",";

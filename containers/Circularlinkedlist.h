@@ -94,14 +94,7 @@ public:
         }
         this->m_size++;
     }
-    void clear() override {
-        unique_lock<shared_mutex> lock(this->m_mtx);
-        if (!this->m_pRoot) return;
-        this->m_tail->setNext(nullptr);
-        Node* cur = this->m_pRoot;
-        while (cur) { Node* nx = cur->getNext(); delete cur; cur = nx; }
-        this->m_pRoot = this->m_tail = nullptr; this->m_size = 0;
-    }
+    void clear() override { this->internal_clear_circular(); }
 
     template <typename Func, typename... Args>
     void circularForEach(size_t vueltas, Func func, Args&&... args) {
