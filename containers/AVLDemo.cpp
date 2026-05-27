@@ -12,7 +12,7 @@ void AVLDemo() {
     // insercion ascendente (provoca rotaciones RR)
     cout << "\n[ascendente]\n";
     AscAVL t1;
-    for (int i = 1; i <= 7; ++i) {
+    for (AscAVL::value_type i= 1; i <= 7; ++i) {
         t1.insert(i, i*10);
         cout << "  insert(" << i << ") h=" << t1.height() << " bf=" << t1.balance() << "\n";
     }
@@ -21,7 +21,7 @@ void AVLDemo() {
     // insercion descendente (rotaciones LL)
     cout << "\n[descendente]\n";
     AscAVL t2;
-    for (int i = 7; i >= 1; --i) {
+    for (AscAVL::value_type i = 7; i >= 1; --i) {
         t2.insert(i, i*10);
         cout << "  insert(" << i << ") h=" << t2.height() << " bf=" << t2.balance() << "\n";
     }
@@ -30,7 +30,7 @@ void AVLDemo() {
     // mixta — LR y RL
     cout << "\n[mixta LL/RR/LR/RL]\n";
     AscAVL t3;
-    for (int v : {5,3,7,1,4,6,8,2}) {
+    for (AscAVL::value_type v : {5,3,7,1,4,6,8,2}) {
         t3.insert(v, v*10);
         cout << "  insert(" << v << ") h=" << t3.height() << " bf=" << t3.balance() << "\n";
     }

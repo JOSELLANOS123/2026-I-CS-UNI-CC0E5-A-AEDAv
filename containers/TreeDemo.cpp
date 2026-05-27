@@ -10,7 +10,7 @@ using AscTree = BinaryTree<AscendingTrait<BinaryTreeNode<T1>>>;
 void BinaryTreeDemo() {
     cout << "=== BinaryTree ===\n";
     AscTree t;
-    for (int v : {5,3,7,1,4,6,8}) t.insert(v, v*10);
+    for (AscTree::value_type v : {5,3,7,1,4,6,8}) t.insert(v, v*10);
 
     // t9 toString
     cout << "\n[toString]\n" << t.toString() << "\n";
