@@ -52,7 +52,7 @@ public:
     bool operator!=(const BTBackwardIterator& o) const { return m_i != o.m_i; }
 };
 
-// TraversalView
+// TraversalView: dueno del snapshot, expone begin/end, rbegin/rend, forEach, rForEach
 template<typename Node, typename value_type>
 class TraversalView {
     shared_ptr<vector<Node*>> m_snap;
@@ -190,6 +190,18 @@ public:
         Node* n = internal_search(m_pRoot, data);
         if (!n) throw runtime_error("elemento no encontrado");
         return make_tuple(n->m_data, n->m_ref);
+    }
+
+    // operator[] — busca la clave, inserta con Ref{} si no existe, retorna Ref&
+    // Usado por HashTable para implementar n[key] = value
+    Ref& operator[](const value_type& key) {
+        unique_lock<shared_mutex> lock(m_mtx);
+        Node* n = internal_search(m_pRoot, key);
+        if (!n) {
+            internal_insert(m_pRoot, key, Ref{});
+            n = internal_search(m_pRoot, key);
+        }
+        return n->m_ref;
     }
 
     size_t size() const { shared_lock<shared_mutex> lock(m_mtx); return internal_size(m_pRoot); }

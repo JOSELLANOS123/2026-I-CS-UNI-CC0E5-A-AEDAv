@@ -32,6 +32,9 @@ public:
 
 template <typename T>
 class VectorNode{
+public:
+    using value_type = T;   // Adaptacion a Trait: expone value_type
+private:
     T   m_data;
     Ref m_ref;
 public:
@@ -50,11 +53,12 @@ public:
         return *this;
     }
 
-    T    getData() const { return m_data; }
-    T&   getDataRef() { return m_data; }
-    void setData(T data) { m_data = data; }
-    Ref  getRef() { return m_ref; }
-    void setRef(Ref ref) { m_ref = ref; }
+    T    getData()  const { return m_data; }
+    T&   getDataRef()     { return m_data; }
+    void setData(T data)  { m_data = data; }
+    Ref  getRef()   const { return m_ref; }
+    Ref& getRefRef()      { return m_ref; }
+    void setRef(Ref ref)  { m_ref = ref; }
     
 };
 
@@ -84,6 +88,24 @@ public:
     virtual void push_back(value_type value, Ref ref);
     virtual size_t size() const;
     virtual string toString() const;
+
+    // Adaptacion para Heap: acceso por indice (sin lock — el Heap maneja su propio mutex)
+    Node& operator[](size_t i)       { return m_data[i]; }
+    const Node& operator[](size_t i) const { return m_data[i]; }
+
+    void pop_back() {
+        unique_lock<shared_mutex> lock(m_mtx);
+        if (m_size > 0) m_size--;
+    }
+    void swap_at(size_t i, size_t j) {
+        Node tmp   = m_data[i];
+        m_data[i]  = m_data[j];
+        m_data[j]  = tmp;
+    }
+    bool empty() const {
+        shared_lock<shared_mutex> lock(m_mtx);
+        return m_size == 0;
+    }
 
     forward_iterator begin() { return forward_iterator(this, m_data); }
     forward_iterator end()   { return forward_iterator(this, m_data + m_size); }

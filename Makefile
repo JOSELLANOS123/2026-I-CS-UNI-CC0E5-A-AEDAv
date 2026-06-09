@@ -6,7 +6,9 @@ SRCS     = main.cpp \
            containers/vector.cpp \
            containers/ListsDemo.cpp \
            containers/TreeDemo.cpp \
-           containers/AVLDemo.cpp
+           containers/AVLDemo.cpp \
+           containers/HeapDemo.cpp \
+           containers/HashDemo.cpp
 OBJS     = $(SRCS:.cpp=.o)
 
 all: $(TARGET)
@@ -15,5 +17,5 @@ $(TARGET): $(OBJS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 clean:
-	rm -f $(OBJS) $(TARGET)
+	del /Q $(subst /,\,$(OBJS)) $(TARGET).exe 2>nul || true
 .PHONY: all clean

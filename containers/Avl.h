@@ -6,8 +6,9 @@
 // AVLNode: extiende BinaryTreeNode agregando m_height
 template<typename T>
 struct AVLNode : public BinaryTreeNode<T, AVLNode<T>> {
-    using value_type = T;
-    int m_height;
+    using value_type  = T;
+    using height_type = int;   
+    height_type m_height;
     AVLNode(T data, Ref ref) : BinaryTreeNode<T, AVLNode<T>>(data, ref), m_height(1) {}
 };
 
@@ -19,13 +20,14 @@ struct DescendingAVLTrait : public BaseTrait<AVLNode<T>, greater<T>> {};
 template<typename Trait>
 class AVL : public BinaryTree<Trait> {
 public:
-    using value_type = typename Trait::value_type;
-    using Node       = typename Trait::Node;
+    using value_type  = typename Trait::value_type;
+    using Node        = typename Trait::Node;
+    using height_type = typename Node::height_type;  // reutiliza el alias del nodo
 
 private:
-    int  height(Node* n)       const { return n ? n->m_height : 0; }
-    void update_height(Node* n)      { if (n) n->m_height = 1 + max(height(n->m_pChild[0]), height(n->m_pChild[1])); }
-    int  balance_factor(Node* n) const { return n ? height(n->m_pChild[0]) - height(n->m_pChild[1]) : 0; }
+    height_type height(Node* n)         const { return n ? n->m_height : 0; }
+    void        update_height(Node* n)        { if (n) n->m_height = 1 + max(height(n->m_pChild[0]), height(n->m_pChild[1])); }
+    height_type balance_factor(Node* n) const { return n ? height(n->m_pChild[0]) - height(n->m_pChild[1]) : 0; }
 
     void rotate_right(Node*& y) {
         Node* x = y->m_pChild[0];
@@ -41,7 +43,7 @@ private:
     }
     void rebalance(Node*& n) {
         update_height(n);
-        int bf = balance_factor(n);
+        auto bf = balance_factor(n);   // auto bf — ya no int
         if      (bf >  1 && balance_factor(n->m_pChild[0]) >= 0) rotate_right(n);                               // LL
         else if (bf >  1 && balance_factor(n->m_pChild[0]) <  0) { rotate_left(n->m_pChild[0]); rotate_right(n); } // LR
         else if (bf < -1 && balance_factor(n->m_pChild[1]) <= 0) rotate_left(n);                                // RR
@@ -77,8 +79,8 @@ public:
     AVL& operator=(AVL&& other) { BinaryTree<Trait>::operator=(move(other)); return *this; }
     virtual ~AVL() {}
 
-    int height()  const { shared_lock<shared_mutex> lock(this->m_mtx); return height(this->m_pRoot); }
-    int balance() const { shared_lock<shared_mutex> lock(this->m_mtx); return balance_factor(this->m_pRoot); }
+    height_type height()  const { shared_lock<shared_mutex> lock(this->m_mtx); return height(this->m_pRoot); }
+    height_type balance() const { shared_lock<shared_mutex> lock(this->m_mtx); return balance_factor(this->m_pRoot); }
 };
 
 #endif // __AVL_H__

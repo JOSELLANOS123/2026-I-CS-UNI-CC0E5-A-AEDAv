@@ -1,18 +1,20 @@
-#include "containers/vector.h"
 #include "containers/linkedlist.h"
 #include "containers/BinaryTree.h"
 #include "containers/avl.h"
-// g++ -std=c++2b main.cpp containers/vector.cpp -o main
+#include "containers/heap.h"
+#include "containers/hashtable.h"
+
 void ListsDemo();
 void BinaryTreeDemo();
 void AVLDemo();
+void DemoHeap();
+void DemoHashTable();
 
 int main() {
     ListsDemo();
     BinaryTreeDemo();
     AVLDemo();
+    DemoHeap();
+    DemoHashTable();
     return 0;
 }
-
-
-
