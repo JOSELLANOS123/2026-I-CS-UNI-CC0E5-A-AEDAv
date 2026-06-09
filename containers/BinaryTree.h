@@ -52,11 +52,12 @@ public:
     bool operator!=(const BTBackwardIterator& o) const { return m_i != o.m_i; }
 };
 
-// TraversalView: dueno del snapshot, expone begin/end, rbegin/rend, forEach, rForEach
+// TraversalView
 template<typename Node, typename value_type>
 class TraversalView {
     shared_ptr<vector<Node*>> m_snap;
 public:
+    enum class TraversalOrder { INORDER, PREORDER, POSTORDER };  // Mejora libre #3
     using ForwardIt  = BTForwardIterator<Node, value_type>;
     using BackwardIt = BTBackwardIterator<Node, value_type>;
     using View       = TraversalView<Node, value_type>;
@@ -76,6 +77,7 @@ public:
     using value_type = typename Trait::value_type;
     using Node       = typename Trait::Node;
     using Comp       = typename Trait::Comp;
+    enum class TraversalOrder { INORDER, PREORDER, POSTORDER };  // Mejora libre #3
     using ForwardIt  = BTForwardIterator<Node, value_type>;
     using BackwardIt = BTBackwardIterator<Node, value_type>;
     using View       = TraversalView<Node, value_type>;
@@ -114,7 +116,7 @@ protected:
         return n ? 1 + internal_size(n->m_pChild[0]) + internal_size(n->m_pChild[1]) : 0;
     }
 
-    enum class TraversalOrder { INORDER, PREORDER, POSTORDER }; // Mejora libre (adicional) #3: TraversalOrder enum — unifica 3 recorridos en 1 metodo (DRY)
+
 
     void fill(Node* n, vector<Node*>& v, TraversalOrder order) const {
         if (!n) return;
@@ -201,12 +203,10 @@ public:
     ForwardIt begin() const { return inorder().begin(); }
     ForwardIt end()   const { return inorder().end();   }
 
-    // t9 toString
-    string toString() const {
+    // t9 toString — parametrizado, por defecto inorder
+    string toString(TraversalOrder order = TraversalOrder::INORDER) const {
         shared_lock<shared_mutex> lock(m_mtx);
-        return "Inorder:"    + traversalToString(TraversalOrder::INORDER)
-             + "\nPreorder:"  + traversalToString(TraversalOrder::PREORDER)
-             + "\nPostorder:" + traversalToString(TraversalOrder::POSTORDER);
+        return traversalToString(order);
     }
 
     // t10 operator<< — inorder, funciona con cout y ofstream sin cambios

@@ -6,14 +6,17 @@
 using namespace std;
 
 using AscTree = BinaryTree<AscendingTrait<BinaryTreeNode<T1>>>;
+using Order   = AscTree::TraversalOrder;
 
 void BinaryTreeDemo() {
     cout << "=== BinaryTree ===\n";
     AscTree t;
     for (AscTree::value_type v : {5,3,7,1,4,6,8}) t.insert(v, v*10);
 
-    // t9 toString
-    cout << "\n[toString]\n" << t.toString() << "\n";
+    // t9 toString — parametrizado, por defecto inorder
+    cout << "\n[toString inorder]\n"   << t.toString() << "\n";
+    cout << "[toString preorder]\n"     << t.toString(Order::PREORDER) << "\n";
+    cout << "[toString postorder]\n"    << t.toString(Order::POSTORDER) << "\n";
 
     // t10 operator<< consola + archivo
     cout << "\n[operator<<]\n" << t << "\n";
@@ -48,12 +51,12 @@ void BinaryTreeDemo() {
     for (auto& v : t) cout << v << " ";
 
     // t13/t14 preorder
-    cout << "\n[preorder  fwd] "; t.preorder().forEach ([](T1& v){ cout << v << " "; });
-    cout << "\n[preorder  bwd] "; t.preorder().rForEach([](T1& v){ cout << v << " "; });
+    cout << "\n[preorder  fwd] "; t.preorder().forEach ([](AscTree::value_type& v){ cout << v << " "; });
+    cout << "\n[preorder  bwd] "; t.preorder().rForEach([](AscTree::value_type& v){ cout << v << " "; });
 
     // t15/t16 postorder
-    cout << "\n[postorder fwd] "; t.postorder().forEach ([](T1& v){ cout << v << " "; });
-    cout << "\n[postorder bwd] "; t.postorder().rForEach([](T1& v){ cout << v << " "; });
+    cout << "\n[postorder fwd] "; t.postorder().forEach ([](AscTree::value_type& v){ cout << v << " "; });
+    cout << "\n[postorder bwd] "; t.postorder().rForEach([](AscTree::value_type& v){ cout << v << " "; });
 
     // t17 search
     auto [val, ref] = t.search(4);
