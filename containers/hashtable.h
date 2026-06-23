@@ -20,14 +20,14 @@ public:
     using Entry      = pair<value_type, Ref>;   // par (clave, valor) para iteracion
 
 private:
-    AVL<Trait>     m_avl;    
+    AVL<Trait>     m_avl;    // estructura principal — donde se guarda la informacion
     mutable shared_mutex m_mtx;
 
     // Tercera estructura: LinkedList para colisiones
     // Si una clave ya existe en el AVL, la colision se registra aqui
     LinkedList<AscendingTrait<LLNode<value_type>>> m_collisions;
 
-    // Iterador snapshot sobre los entries del AVL 
+    // Iterador snapshot sobre los entries del AVL — soporta structured bindings via pair
     struct HTIter {
         shared_ptr<vector<Entry>> m_snap;
         size_t m_i;
@@ -82,7 +82,7 @@ public:
     }
 
     // operator[] — delega hacia insert en el AVL interno
-    // Si la clave ya existe: actualiza su valor 
+    // Si la clave ya existe: actualiza su valor (sobrescribe)
     // Si es nueva: inserta en el AVL
     Ref& operator[](const value_type& key) {
         return m_avl[key];   // AVL::operator[] busca o inserta y retorna Ref&
@@ -100,7 +100,7 @@ public:
         return {m_snap, m_snap ? m_snap->size() : 0};
     }
 
-    // operator<< 
+    // operator<< — muestra los pares (key:value) en orden del AVL
     friend ostream& operator<<(ostream& os, const HashTable& ht) {
         os << "{";
         bool first = true;
@@ -112,11 +112,11 @@ public:
         return os << "}";
     }
 
-    // operator>> 
+    // operator>> — parsea {(k:v),...} e inserta via operator[]
     friend istream& operator>>(istream& is, HashTable& ht) {
-        char ch;
+        auto ch = char{}, colon = char{}, cp = char{};
         if (!(is >> ch) || ch != '{') { is.clear(ios_base::failbit); return is; }
-        value_type k; Ref v; char colon, cp;
+        value_type k; Ref v;
         while (is >> ch && ch != '}')
             if (ch == '(' && is >> k >> colon >> v >> cp && colon == ':' && cp == ')')
                 ht[k] = v;
