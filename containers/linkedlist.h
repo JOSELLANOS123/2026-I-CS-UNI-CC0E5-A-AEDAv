@@ -36,10 +36,12 @@ public:
 template <typename T>
 class LLNode{
 protected:
-    using Node = NodeType;
+    using Node = LLNode<T>;
+public:
+    using value_type = T;   // requerido por BaseTrait
 private:
-    T   m_data;
-    Ref m_ref;
+    T     m_data;
+    Ref   m_ref;
     Node *m_next;
 public:
     LLNode() : m_data(T()), m_ref(Ref()), m_next(nullptr) {}
@@ -47,13 +49,13 @@ public:
     LLNode(T data, Ref ref, Node *next) : m_data(data), m_ref(ref), m_next(next) {}
     virtual ~LLNode() {}
 
-    T      getData() const { return m_data; }
-    T&     getDataRef()    { return m_data; }
-    void   setData(T data) { m_data = data; }
-    Ref    getRef() const  { return m_ref; }
-    void   setRef(Ref ref) { m_ref = ref; }
-    Node*  ngetNext() const { return m_next; }
-    Node*& getNextRef()    { return m_next; }
+    T      getData() const     { return m_data; }
+    T&     getDataRef()        { return m_data; }
+    void   setData(T data)     { m_data = data; }
+    Ref    getRef() const      { return m_ref; }
+    void   setRef(Ref ref)     { m_ref = ref; }
+    Node*  getNext() const     { return m_next; }
+    Node*& getNextRef()        { return m_next; }
     void   setNext(Node *next) { m_next = next; }
 };
 

@@ -1,10 +1,11 @@
-#include "containers/vector.h"
 #include "containers/linkedlist.h"
-// g++ -std=c++2b main.cpp containers/vector.cpp -o main
+#include "containers/BTree.h"
+
 void ListsDemo();
-int main(){
-    // DemoVector();
-    //DemoConcurrentVector();
+void BTreeDemo();
+
+int main() {
     ListsDemo();
+    BTreeDemo();
     return 0;
 }
