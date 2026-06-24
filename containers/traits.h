@@ -16,4 +16,13 @@ template <typename _Node>
 struct DescendingTrait : public BaseTrait<_Node, greater<typename _Node::value_type>>{
 };
 
+// Trait especifico para BTree — agrega value_type para mantener
+// consistencia con el sistema BaseTrait del proyecto
+template<typename _Key, typename _ObjID = long>
+struct BTreeTrait {
+    using keyType    = _Key;
+    using ObjIDType  = _ObjID;
+    using value_type = _Key;   // conexion con el patron de Traits del proyecto
+};
+
 #endif // __TRAITS_H__

@@ -14,4 +14,5 @@ using T1 = int;
 
 using Ref = long;
 
+using TypeBTree = char;  // tipo de clave del BTree
 #endif // __TYPES_H__
