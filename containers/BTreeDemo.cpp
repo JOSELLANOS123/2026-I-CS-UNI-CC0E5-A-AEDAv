@@ -1,58 +1,42 @@
 #include <iostream>
+#include <stdlib.h>
+#include <string>
 #include "BTree.h"
+#include "traits.h"
+#include "../types.h"
+
 using namespace std;
 
+const char * keys1 = "D1XJ2xTg8zKL9AhijOPQcEowRSp0NbW567BUfCqrs4FdtYZakHIuvGV3eMylmn";
+const char * keys2 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-using BT = BTree<BTreeTrait<TypeBTree>>;
+const size_t BTreeSize = 3;
 
-void BTreeDemo() {
-    cout << "\n=== BTree ===\n";
-
-    const TypeBTree* keys1 = "D1XJ2xTg8zKL9AhijOPQcEowRSp0NbW567BUfCqrs4FdtYZakHIuvGV3eMylmn";
-    constexpr auto BTreeSize = 3;
-
-    BT bt(BTreeSize);
-    for (auto i = 0; keys1[i]; i++)
-        bt.Insert(keys1[i], (Ref)(i * i));
-
-    // Print
-    cout << "\n[Print]\n";
+void BTreeDemo()
+{
+    cout << "=== Mi Demo Personalizado de BTree (Hasta Concurrencia) ===" << endl;
+    
+    // Le pasamos correctamente el nodo contenedor nativo 'tagObjectInfo<char, long>' al Trait
+    using MyTreeTrait = AscendingTrait<tagObjectInfo<char, long>>;
+    BTree<MyTreeTrait> bt(BTreeSize); 
+    
+    for (size_t i = 0; keys1[i]; i++) {
+        bt.Insert(keys1[i], i * i);
+    }
+    
+    cout << "\nEstructura del Arbol Impresa con Lambda:" << endl;
     bt.Print(cout);
 
-    // ForEach variadic sin args extra 
-    cout << "\n[ForEach - claves en orden]\n";
-    bt.ForEach([](auto& info, auto level) {
-        cout << info.key << " ";
-    });
-    cout << "\n";
-
-    // ForEach variadic con argumento extra
-    cout << "\n[ForEach - con nivel visible]\n";
-    bt.ForEach([](auto& info, auto level, bool mostrarNivel) {
-        if (mostrarNivel) cout << "[" << level << "]";
-        cout << info.key << " ";
-    }, true);
-    cout << "\n";
-
-    // FirstThat variadic sin args extra
-    cout << "\n[FirstThat - primera vocal]\n";
-    auto* vocal = bt.FirstThat([](auto& info, auto level) {
-        auto k = info.key;
-        return k=='A'||k=='E'||k=='I'||k=='O'||k=='U'
-             ||k=='a'||k=='e'||k=='i'||k=='o'||k=='u';
-    });
-    if (vocal) cout << "  Encontrada: " << vocal->key << " (ref=" << vocal->ObjID << ")\n";
-
-    // FirstThat variadic con argumento extra
-    cout << "\n[FirstThat - buscar clave especifica]\n";
-    auto* encontrado = bt.FirstThat([](auto& info, auto level, TypeBTree target) {
-        return info.key == target;
-    }, TypeBTree('Z'));
-    if (encontrado) cout << "  Z encontrada: ref=" << encontrado->ObjID << "\n";
-
-    // Search, size, height
-    cout << "\n[Search, size, height]\n";
-    cout << "  Search('A') = " << bt.Search('A') << "\n";
-    cout << "  size = " << bt.size() << "\n";
-    cout << "  height = " << bt.height() << "\n";
+    cout << "\nProbando consultas seguras:" << endl;
+    for (size_t i = 0; keys2[i] && i < 10; i++)
+    {
+        cout << "Buscando llave '" << keys2[i] << "': ";
+        long ObjID = bt.Search(keys2[i]);
+        if (ObjID != 0) 
+            cout << "Encontrado -> ID = " << ObjID << endl;
+        else
+            cout << "No registrado." << endl;
+    }
+    
+    cout << "\nPropiedades: Elementos = " << bt.size() << ", Altura = " << bt.height() << endl;
 }
